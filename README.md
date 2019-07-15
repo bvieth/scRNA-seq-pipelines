@@ -9,7 +9,7 @@ For any questions or issues with the code on this repository, please use the "Is
 
 # Getting started
 
-Below you will find a brief outline of the analysis. Please refer to the corresponden folders for detailed information
+Below you will find a brief outline of the analysis. Please refer to the corresponding folders for detailed information.
 
 ## Data aquisition
 
