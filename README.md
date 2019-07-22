@@ -20,6 +20,16 @@ the “Issues” tab.
 Below you will find a brief outline of the analysis. Please refer to the
 corresponding folders for detailed information.
 
+## Dependencies
+
+You will need the following software:
+
+  - samtools version 1.9
+  - BWA version 0.7.12
+  - kallisto 0.43.1
+  - zUMIs 2.4.5
+  - powsimR 2.5
+
 ## Data aquisition
 
 ### scRNA-seq data sets
@@ -39,3 +49,25 @@ For the comparison of pipelines, we processed the expression profiles of
 ~ 1000 human
 [PBMCs](https://support.10xgenomics.com/single-cell-gene-expression/datasets/3.0.0/pbmc_1k_v3)
 from 10X Genomics.
+
+## Annotation
+
+The annotation folder contains detailed information on how to get the
+necessary files from Gencode, Vega and RefSeq and processing them in
+order to use them for alignments. Additionally, we provide ERCC spike-in
+sequences and annotation.
+
+## Alignment
+
+The alignment folder contains the commands per aligner for indexing,
+mapping, counting expression per gene and subsequently summarising the
+expresison into one gene count matrix per protocol, aligner and
+annotation combination. In particular, it contains R scripts for
+filtering out multi-mapped reads for bwa and kallisto alignments.
+
+## Simulations
+
+We use powsimR for our simulations. The folder simulation contains a
+walkthrough R script to estimate the distributional parameters necessary
+to simulate gene expression, to set up differential expression and to
+finally run the simulations.

@@ -1,0 +1,47 @@
+project: scrbseq
+sequence_files:
+  file1:
+    name: SCRBseq_R1.fastq.gz
+    base_definition:
+    - BC(1-6)
+    - UMI(7-16)
+  file2:
+    name: SCRBseq_R2.fastq.gz
+    base_definition: cDNA(1-45)
+reference:
+  STAR_index: index/mm10/zumi/gencode
+  GTF_file: annotation/mm10/gencode/mm10_genome_spike_gencode.gtf
+  additional_STAR_params: ''
+  additional_files: ~
+out_dir: zUMIs-scrbseq
+num_threads: 6
+mem_limit: 100
+filter_cutoffs:
+  BC_filter:
+    num_bases: 1
+    phred: 20
+  UMI_filter:
+    num_bases: 1
+    phred: 20
+barcodes:
+  barcode_num: ~
+  barcode_file: originalBC.txt
+  automatic: yes
+  BarcodeBinning: 0
+  nReadsperCell: 100
+counting_opts:
+  introns: yes
+  downsampling: 0
+  strand: 0
+  Ham_Dist: 0
+  velocyto: no
+  primaryHit: yes
+  twoPass: yes
+make_stats: yes
+which_Stage: Filtering
+Rscript_exec: Rscript
+STAR_exec: STAR
+pigz_exec: pigz
+samtools_exec: samtools
+zUMIs_directory: /bin/zUMIs
+read_layout: SE

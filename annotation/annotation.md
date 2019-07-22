@@ -15,7 +15,7 @@ Download genome and annotation gtf for each annotation
 
   - [vega](ftp://ftp.sanger.ac.uk/pub/vega/mouse)
   - [gencode](ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M15/)
-  - [refseq]()
+  - [refseq](ftp://ftp.ncbi.nih.gov/refseq/M_musculus/)
 
 Furthermore, convert it to transcript fasta files for transcriptome
 alignment and pseudoalignment.
