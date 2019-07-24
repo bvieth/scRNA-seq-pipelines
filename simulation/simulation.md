@@ -28,33 +28,12 @@ estparam.gene <- estimateParam(countData = InputData$GeneUMIs,
 
     ## Using computeSumFactors, i.e. deconvolution over all cells!
 
-    ## Warning: Column `Var1` joining factors with different levels, coercing to
-    ## character vector
-
     ## For 2761 out of 4595 genes, mean, dispersion and dropout could be estimated. 20 out of 25 single cells were used for this.
 
 ``` r
 estparam.spike <- estimateSpike(spikeData = InputData$SpikeCounts, spikeInfo = InputData$SpikeInfo, 
     Normalisation = "depth")
 ```
-
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
-    
-    ## Warning in densfun(x, parm[1], parm[2], ...): NaNs produced
 
 ``` r
 plotParam(estparam.gene)
