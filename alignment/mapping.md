@@ -74,15 +74,20 @@ STAR --runThreadN 6 --runMode genomeGenerate --genomeDir index/hg38/zumi/gencode
 STAR --runThreadN 6 --runMode genomeGenerate --genomeDir index/hg38/zumi/refseq --genomeFastaFiles annotation/hg38/refseq/hg38_genome_spike_refseq.fa --limitGenomeGenerateRAM 111000000000
 ```
 
-# Transcriptome alignment
+# Alignments
 
-## BWA
+## Transcriptome alignment
+
+You can use the example fastq file containing the reads for one cell in
+the SCRB-seq data set (see alignment/example-data/).
+
+### BWA
 
 ``` bash
 # settings
 annotation = "gencode"
 species = "mm10"
-inpath = "path/to/input.fastq/"
+inpath = "path/to/input.fastq/" 
 fqfile = "cell.cDNA.reads.fastq" # demultiplexed cDNA fastq files, i.e. per cell barcodes
 threads = 2
 # alignment commands
@@ -91,9 +96,9 @@ bwa samse index/$species/bwa/$annotation/{$annotation}_{$genome} $fqfile.sai $in
 samtools view -bS $fqfile.sam > $fqfile.bam
 ```
 
-# Pseudoalignment
+## Pseudoalignment
 
-## kallisto
+### kallisto
 
 ``` bash
 # settings
@@ -116,9 +121,9 @@ infiles = "inputfiles.txt" # input text file with 1. column = BC; 2. column = pa
 kallisto pseudo --index index/$species/kallisto/$annotation/{$annotation}_{$genome} --output-dir $outpath --batch $infiles --single --fragment-length $meanfrag --sd $sdfrag --threads $threads
 ```
 
-# Genome alignment
+## Genome alignment
 
-## zUMIs
+### zUMIs
 
 Create a yaml config file (see example in alignment folder) and then run
 zUMIs:
@@ -130,5 +135,22 @@ bash /bin/zUMIs/zUMIs-master.sh -y alignmentexample_scrbseq.yaml
 For Smart-seq2 data simply leave out UMI definition in the sequence file
 definition (yaml).
 
-``` bash
-```
+# Gene Expression Quantification by summarising alignment results
+
+## BWA
+
+For counting reads / UMIs per gene and filtering multimapped reads, see
+Rscripts run\_transcriptome\_counts.R (for Smart-seq2) and
+run\_transcriptome\_umicounts.R (for UMI methods). Summarise the
+individual results output per cell barcode using
+run\_transcriptome\_summarise.R.
+
+## kallisto
+
+See run\_kallisto\_counts.R for matching euqivalence classes to
+transcript IDs and collapsing alignments per gene for each cell. Use
+run\_kallisto\_summarise.R to summarise output.
+
+## zUMIs
+
+zUMIs already provides directly useable count matrices.

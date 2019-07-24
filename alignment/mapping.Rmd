@@ -83,13 +83,15 @@ STAR --runThreadN 6 --runMode genomeGenerate --genomeDir index/hg38/zumi/refseq 
 
 ## Transcriptome alignment
 
+You can use the example fastq file containing the reads for one cell in the SCRB-seq data set (see alignment/example-data/).
+
 ### BWA
 
 ```{bash}
 # settings
 annotation = "gencode"
 species = "mm10"
-inpath = "path/to/input.fastq/"
+inpath = "path/to/input.fastq/" 
 fqfile = "cell.cDNA.reads.fastq" # demultiplexed cDNA fastq files, i.e. per cell barcodes
 threads = 2
 # alignment commands

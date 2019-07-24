@@ -10,11 +10,10 @@ awk '{print $1 " " $1}' annotation/ercc/ercc.gtf > annotation/ercc/transcript_ge
 
 # MOUSE
 
-Download genome and annotation gtf for each annotation
-    used:
+Download genome and annotation gtf for each annotation used:
 
-  - [vega](ftp://ftp.sanger.ac.uk/pub/vega/mouse)
-  - [gencode](ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M15/)
+  - [vega](http://vega.archive.ensembl.org/Mus_musculus/Info/Index)
+  - [gencode](https://www.gencodegenes.org/mouse/release_M15.html)
   - [refseq](ftp://ftp.ncbi.nih.gov/refseq/M_musculus/)
 
 Furthermore, convert it to transcript fasta files for transcriptome

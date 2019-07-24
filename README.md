@@ -55,7 +55,7 @@ from 10X Genomics.
 The annotation folder contains detailed information on how to get the
 necessary files from Gencode, Vega and RefSeq and processing them in
 order to use them for alignments. Additionally, we provide ERCC spike-in
-sequences and annotation.
+sequences.
 
 ## Alignment
 
@@ -64,10 +64,13 @@ mapping, counting expression per gene and subsequently summarising the
 expresison into one gene count matrix per protocol, aligner and
 annotation combination. In particular, it contains R scripts for
 filtering out multi-mapped reads for bwa and kallisto alignments.
+Additionally, we provide an RNA-seq experiment output of one cell (fastq
+file) as exemplary input for bwa and kallisto.
 
 ## Simulations
 
 We use powsimR for our simulations. The folder simulation contains a
 walkthrough R script to estimate the distributional parameters necessary
 to simulate gene expression, to set up differential expression and to
-finally run the simulations.
+finally run the simulations. Additionally, we provide exemplary input of
+SCRB-seq (UMI) and Smart-seq2 data to run simulations.
