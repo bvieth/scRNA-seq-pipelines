@@ -28,7 +28,7 @@ You will need the following software:
   - BWA version 0.7.12
   - kallisto 0.43.1
   - zUMIs 2.4.5
-  - powsimR 2.5
+  - powsimR
 
 ## Data aquisition
 
