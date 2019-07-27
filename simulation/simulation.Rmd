@@ -6,7 +6,7 @@ output: github_document
 ```{r setup, eval = TRUE, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
                       root.dir = "/home/vieth/Gits/scRNA-seq-pipelines/simulation/")
-library(powsimRDev)
+library(powsimR)
 
 ```
 
