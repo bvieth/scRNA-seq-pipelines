@@ -28,7 +28,7 @@ You will need the following software:
   - BWA version 0.7.12
   - kallisto 0.43.1
   - zUMIs 2.4.5
-  - powsimR
+  - powsimR (see prepackaged version in simulation folder)
 
 ## Data aquisition
 
@@ -61,7 +61,7 @@ sequences.
 
 The alignment folder contains the commands per aligner for indexing,
 mapping, counting expression per gene and subsequently summarising the
-expresison into one gene count matrix per protocol, aligner and
+expression into one gene count matrix per protocol, aligner and
 annotation combination. In particular, it contains R scripts for
 filtering out multi-mapped reads for bwa and kallisto alignments.
 Additionally, we provide an RNA-seq experiment output of one cell (fastq
