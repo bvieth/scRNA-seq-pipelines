@@ -1,0 +1,21 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# Overview
+
+This folder contains the necessary scripts to reconstruct the main figures as well as associated supplementary figures in "A Systematic Evaluation of Single Cell RNA-Seq Analysis Pipelines" by Vieth et al. 2019, currently on [bioRxiv](https://www.biorxiv.org/content/10.1101/583013v1). The input data is deposited on [zenodo](http://doi.org/10.5281/zenodo.3364467).
+
+
+
+
