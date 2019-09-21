@@ -34,9 +34,20 @@ if(isTRUE(grepl(pattern = paste(UMIProtocols,collapse="|"), opt$protocol))) {
   files <- files[grepl(pattern=paste0("/", opt$protocol, "/"), files)]
   files <- files[grepl(pattern=paste0("/", opt$annotation, "/"), files)]
   
+   ## GENE UMIS
+  
   tmpumi <- readRDS(file=files[grepl(pattern="/umi/", files)])
-  geneumis <- tmpumi[!grepl(tmpumi$gene, pattern=","),]
-  geneumis <- geneumis %>% 
+  UniqGene <- sapply(X = 1:length(tmpumi$gene), function(i) {
+    tmp <- unlist(ifelse(grepl(pattern = ",", tmpumi$gene[i]),
+           strsplit(tmpumi$gene[i], split = ","),
+           tmpumi$gene[i]))
+    tmp2 <- ifelse(length(unique(tmp)) == 1, unique(tmp), "multi")
+    tmp2
+  })
+  
+  geneumis <- tmpumi %>% 
+    dplyr::mutate(gene = UniqGene) %>% 
+    dplyr::filter(!gene == "multi") %>% 
     dplyr::select(-transcript, -ec) %>% 
     dplyr::group_by(gene) %>% 
     dplyr::summarise_all(list(~sum(.)))
@@ -45,15 +56,68 @@ if(isTRUE(grepl(pattern = paste(UMIProtocols,collapse="|"), opt$protocol))) {
   geneumis <- as.matrix(geneumis)
   rownames(geneumis) <- geneid
   
-  transcriptumis <-  tmpumi[!grepl(tmpumi$transcript, pattern=","),]
+  umistats.gene <- tmpumi %>%
+    dplyr::select(-c(ec, transcript)) %>%
+    dplyr::mutate(gene = UniqGene) %>% 
+    tidyr::gather(key = "sample", value="value", -gene) %>%
+    dplyr::mutate(status=ifelse(grepl('multi', gene), 'RepeatedlyMapped', "UniquelyMapped")) %>%
+    dplyr::group_by(sample, status) %>%
+    dplyr::summarise(Total=sum(value)) %>%
+    dplyr::ungroup()  %>%
+    tidyr::spread(status, Total) %>%
+    dplyr::mutate(Unmapped=NA) %>%
+    data.frame() %>%
+    tibble::column_to_rownames(var="sample")
+  
+  ## TRANSCRIPT UMIS
+  
+  transcriptumis <-  tmpumi
+  UniqTranscript <- sapply(X = 1:length(tmpumi$transcript), function(i) {
+    tmp <- unlist(ifelse(grepl(pattern = ",", tmpumi$transcript[i]),
+                         strsplit(tmpumi$transcript[i], split = ","),
+                         tmpumi$transcript[i]))
+    tmp2 <- ifelse(length(unique(tmp)) == 1, unique(tmp), "multi")
+    tmp2
+  })
+  
+  transcriptumis <- transcriptumis %>% 
+    dplyr::mutate(transcript = UniqTranscript) %>% 
+    dplyr::filter(!transcript == "multi") %>% 
+    dplyr::select(-gene, -ec) %>% 
+    dplyr::group_by(transcript) %>% 
+    dplyr::summarise_all(list(~sum(.)))
   transcriptid <- transcriptumis$transcript
   transcriptumis <- transcriptumis[,grepl(colnames(transcriptumis), pattern= "[.]")]
   transcriptumis <- as.matrix(transcriptumis)
   rownames(transcriptumis) <- transcriptid
+
+  umistats.transcript <- tmpumi %>%
+    dplyr::mutate(transcript = UniqTranscript) %>% 
+    dplyr::select(-c(ec, gene)) %>%
+    tidyr::gather(key = "sample", value="value", -transcript) %>%
+    dplyr::mutate(status=ifelse(grepl('multi', transcript), 'RepeatedlyMapped', "UniquelyMapped")) %>%
+    dplyr::group_by(sample, status) %>%
+    dplyr::summarise(Total=sum(value)) %>%
+    dplyr::ungroup()  %>%
+    tidyr::spread(status, Total) %>%
+    dplyr::mutate(Unmapped=NA) %>%
+    data.frame() %>%
+    tibble::column_to_rownames(var="sample")
+  
+  ## GENE READS
   
   tmpread <- readRDS(file=files[grepl(pattern="/no_umi/", files)])
-  genereads <- tmpread[!grepl(tmpread$gene, pattern=","),]
-  genereads <- genereads %>% 
+  UniqGene <- sapply(X = 1:length(tmpread$gene), function(i) {
+    tmp <- unlist(ifelse(grepl(pattern = ",", tmpread$gene[i]),
+                         strsplit(tmpread$gene[i], split = ","),
+                         tmpread$gene[i]))
+    tmp2 <- ifelse(length(unique(tmp)) == 1, unique(tmp), "multi")
+    tmp2
+  })
+  
+  genereads <- tmpread %>% 
+    dplyr::mutate(gene = UniqGene) %>% 
+    dplyr::filter(!gene == "multi") %>% 
     dplyr::select(-transcript, -ec) %>% 
     dplyr::group_by(gene) %>% 
     dplyr::summarise_all(list(~sum(.)))
@@ -62,16 +126,44 @@ if(isTRUE(grepl(pattern = paste(UMIProtocols,collapse="|"), opt$protocol))) {
   genereads <- as.matrix(genereads)
   rownames(genereads) <- geneid
   
-  transcriptreads <-  tmpread[!grepl(tmpread$transcript, pattern=","),]
+  readstats.gene <- tmpread %>%
+    dplyr::mutate(gene = UniqGene) %>% 
+    dplyr::select(-c(ec, transcript)) %>%
+    tidyr::gather(key = "sample", value="value", -gene) %>%
+    dplyr::mutate(status=ifelse(grepl('multi', gene), 'RepeatedlyMapped', "UniquelyMapped")) %>%
+    dplyr::group_by(sample, status) %>%
+    dplyr::summarise(Total=sum(value)) %>%
+    dplyr::ungroup()  %>%
+    tidyr::spread(status, Total) %>%
+    dplyr::mutate(Unmapped=NA) %>%
+    data.frame() %>%
+    tibble::column_to_rownames(var="sample")
+  
+  ## TRANSCRIPT READS
+  
+  UniqTranscript <- sapply(X = 1:length(tmpread$transcript), function(i) {
+    tmp <- unlist(ifelse(grepl(pattern = ",", tmpread$transcript[i]),
+                         strsplit(tmpread$transcript[i], split = ","),
+                         tmpread$transcript[i]))
+    tmp2 <- ifelse(length(unique(tmp)) == 1, unique(tmp), "multi")
+    tmp2
+  })
+  transcriptreads <-  tmpread %>% 
+    dplyr::mutate(transcript = UniqTranscript) %>% 
+    dplyr::filter(!transcript == "multi") %>% 
+    dplyr::select(-gene, -ec) %>% 
+    dplyr::group_by(transcript) %>% 
+    dplyr::summarise_all(list(~sum(.)))
   transcriptid <- transcriptreads$transcript
   transcriptreads <- transcriptreads[,grepl(colnames(transcriptreads), pattern= "[.]")]
   transcriptreads <- as.matrix(transcriptreads)
   rownames(transcriptreads) <- transcriptid
   
-  readstats <- tmpread %>%
+  readstats.transcript <- tmpread %>%
+    dplyr::mutate(transcript = UniqTranscript) %>% 
     dplyr::select(-c(ec, gene)) %>%
     tidyr::gather(key = "sample", value="value", -transcript) %>%
-    dplyr::mutate(status=ifelse(grepl(',', transcript), 'RepeatedlyMapped', "UniquelyMapped")) %>%
+    dplyr::mutate(status=ifelse(grepl('multi', transcript), 'RepeatedlyMapped', "UniquelyMapped")) %>%
     dplyr::group_by(sample, status) %>%
     dplyr::summarise(Total=sum(value)) %>%
     dplyr::ungroup()  %>%
@@ -79,26 +171,14 @@ if(isTRUE(grepl(pattern = paste(UMIProtocols,collapse="|"), opt$protocol))) {
     dplyr::mutate(Unmapped=NA) %>%
     data.frame() %>%
     tibble::column_to_rownames(var="sample")
-  
-  umistats <- tmpumi %>%
-    dplyr::select(-c(ec, gene)) %>%
-    tidyr::gather(key = "sample", value="value", -transcript) %>%
-    dplyr::mutate(status=ifelse(grepl(',', transcript), 'RepeatedlyMapped', "UniquelyMapped")) %>%
-    dplyr::group_by(sample, status) %>%
-    dplyr::summarise(Total=sum(value)) %>%
-    dplyr::ungroup()  %>%
-    tidyr::spread(status, Total) %>%
-    dplyr::mutate(Unmapped=NA) %>%
-    data.frame() %>%
-    tibble::column_to_rownames(var="sample")
-  
+
   # combine the output matrices into list
   out.L <- list(GeneUmis=geneumis,
                 TranscriptUmis=transcriptumis,
                 GeneReads=genereads,
                 TranscriptReads=transcriptreads,
-                MapStatsReads=readstats,
-                MapStatsUMIs=umistats)
+                MapStatsReads=readstats.gene,
+                MapStatsUMIs=umistats.gene)
   
 }
 
@@ -108,30 +188,66 @@ if(isTRUE(grepl(pattern = paste(NoUMIProtocols,collapse="|"), opt$protocol))) {
   files <- files[grepl(pattern=paste0("/", opt$protocol, "/"), files)]
   files <- files[grepl(pattern=paste0("/", opt$annotation, "/"), files)]
   
-  # gene reads
+  ## GENE READS
+  
   tmpread <- readRDS(file=files[grepl(pattern="/no_umi/", files)])
-  genereads <- tmpread[!grepl(tmpread$gene, pattern=","),]
-  genereads <- genereads %>% 
+  UniqGene <- sapply(X = 1:length(tmpread$gene), function(i) {
+    tmp <- unlist(ifelse(grepl(pattern = ",", tmpread$gene[i]),
+                         strsplit(tmpread$gene[i], split = ","),
+                         tmpread$gene[i]))
+    tmp2 <- ifelse(length(unique(tmp)) == 1, unique(tmp), "multi")
+    tmp2
+  })
+  
+  genereads <- tmpread %>% 
+    dplyr::mutate(gene = UniqGene) %>% 
+    dplyr::filter(!gene == "multi") %>% 
     dplyr::select(-transcript, -ec) %>% 
     dplyr::group_by(gene) %>% 
-    dplyr::summarise_all(funs(sum))
+    dplyr::summarise_all(list(~sum(.)))
   geneid <- genereads$gene
-  genereads <- genereads[,grepl(colnames(genereads), pattern= "SmartSeq")]
+  genereads <- genereads[,grepl(colnames(genereads), pattern= "[.]")]
   genereads <- as.matrix(genereads)
   rownames(genereads) <- geneid
   
-  # transcript reads
-  transcriptreads <-  tmpread[!grepl(tmpread$transcript, pattern=","),]
+  readstats.gene <- tmpread %>%
+    dplyr::mutate(gene = UniqGene) %>% 
+    dplyr::select(-c(ec, transcript)) %>%
+    tidyr::gather(key = "sample", value="value", -gene) %>%
+    dplyr::mutate(status=ifelse(grepl('multi', gene), 'RepeatedlyMapped', "UniquelyMapped")) %>%
+    dplyr::group_by(sample, status) %>%
+    dplyr::summarise(Total=sum(value)) %>%
+    dplyr::ungroup()  %>%
+    tidyr::spread(status, Total) %>%
+    dplyr::mutate(Unmapped=NA) %>%
+    data.frame() %>%
+    tibble::column_to_rownames(var="sample")
+  
+  ## TRANSCRIPT READS
+  
+  UniqTranscript <- sapply(X = 1:length(tmpread$transcript), function(i) {
+    tmp <- unlist(ifelse(grepl(pattern = ",", tmpread$transcript[i]),
+                         strsplit(tmpread$transcript[i], split = ","),
+                         tmpread$transcript[i]))
+    tmp2 <- ifelse(length(unique(tmp)) == 1, unique(tmp), "multi")
+    tmp2
+  })
+  transcriptreads <-  tmpread %>% 
+    dplyr::mutate(transcript = UniqTranscript) %>% 
+    dplyr::filter(!transcript == "multi") %>% 
+    dplyr::select(-gene, -ec) %>% 
+    dplyr::group_by(transcript) %>% 
+    dplyr::summarise_all(list(~sum(.)))
   transcriptid <- transcriptreads$transcript
-  transcriptreads <- transcriptreads[,grepl(colnames(transcriptreads), pattern= "SmartSeq")]
+  transcriptreads <- transcriptreads[,grepl(colnames(transcriptreads), pattern= "[.]")]
   transcriptreads <- as.matrix(transcriptreads)
   rownames(transcriptreads) <- transcriptid
   
-  # read stats
-  readstats <- tmpread %>%
+  readstats.transcript <- tmpread %>%
+    dplyr::mutate(transcript = UniqTranscript) %>% 
     dplyr::select(-c(ec, gene)) %>%
     tidyr::gather(key = "sample", value="value", -transcript) %>%
-    dplyr::mutate(status=ifelse(grepl(',', transcript), 'RepeatedlyMapped', "UniquelyMapped")) %>%
+    dplyr::mutate(status=ifelse(grepl('multi', transcript), 'RepeatedlyMapped', "UniquelyMapped")) %>%
     dplyr::group_by(sample, status) %>%
     dplyr::summarise(Total=sum(value)) %>%
     dplyr::ungroup()  %>%
@@ -143,7 +259,7 @@ if(isTRUE(grepl(pattern = paste(NoUMIProtocols,collapse="|"), opt$protocol))) {
   # combine the output matrices into list
   out.L <- list(GeneReads=genereads,
                 TranscriptReads=transcriptreads,
-                ReadStats=readstats)
+                ReadStats=readstats.gene)
   
 }
 
