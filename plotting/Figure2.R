@@ -12,21 +12,21 @@ source(file  = "plotting/renaming_paper.R")
 
 # INPUT -------------------------------------------------------------------
 
-mapres.dat <- readRDS(file = "MapStats_main_2019-05-27.rds")
+mapres.dat <- readRDS(file = "MapStats_main_2019-09-21.rds")
 scrbseq.locations.dat <- readRDS(file = "SCRBseq_locations_main.rds")
 
-detectgenes.dat <- readRDS(file = "MargsDat.rds") %>% 
+detectgenes.dat <- readRDS(file = "MargsDat_2019-09-21.rds") %>% 
   dplyr::select(-Mean, -Dispersion)
 
-fits.dat <- readRDS(file = "FitsDat.rds")
-margs.dat <- readRDS(file = "MargsDat.rds") 
+fits.dat <- readRDS(file = "FitsDat_2019-09-21.rds")
+margs.dat <- readRDS(file = "MargsDat_2019-09-21.rds") 
 margs.dat <-   data.table::melt(setDT(margs.dat), 
                                 id.vars = c("Name", "Protocol", "Mapper", "Annotation", "GeneID"),
                                 measure.vars = c("Mean", "Dispersion", "Dropout"),
                                 variable.factor = FALSE) %>% 
   data.frame()
 
-perf.dat <- readRDS(file = "AlignerPerformance.rds")
+perf.dat <- readRDS(file = "AlignerPerformance_2019-09-21.rds")
 
 # MAIN FIGURE -------------------------------------------------------------
 
@@ -36,9 +36,9 @@ protocol_names <- c(CELseq2 = "CEL-seq2", SCRBseq = "SCRB-seq", Smartseq2 = "Sma
                     HGMM1kv3 = "10X - HGMM", PBMC1kv3 = "10X Genomics", `10XGenomics` = "10X - HGMM", 
                     Dropseq = "Drop-seq")
 protocol.cols <- c(CELseq2 = "#FF6200", MARSseq = "#BF6370", SCRBseq = "#FFA600", 
-                   mcSCRBseq = "#BF8D30", Smartseq2 = "#34D800", SmartseqC1 = "#00B258", 
-                   HGMM1kv3 = "#72217D", PBMC1kv3 = "#A62A58", Dropseq = "#A63F00", 
-                   `10X Genomics` = "#A62A58")
+  mcSCRBseq = "#BF8D30", Smartseq2 = "#34D800", SmartseqC1 = "#00B258", 
+  HGMM1kv3 = "#72217D", PBMC1kv3 = "#A62A58", Dropseq = "#A63F00", 
+  `10X Genomics` = "#A62A58")
 # read mapping statistics per protocol, aligner and annotation
 mapres.plot <- ggplot(data = mapres.dat %>% 
                         dplyr::filter(! Protocol == "HGMM1kv3"), 
@@ -96,19 +96,19 @@ scrbseq.locations.plot <- ggplot2::ggplot(data = scrbseq.locations.dat %>%
 
 # put them together into one figure
 map.combine.plot <- cowplot::plot_grid(mapres.plot,
-                                       scrbseq.locations.plot,
-                                       rel_widths = c(0.7, 0.3),
-                                       nrow = 1,
-                                       ncol = 2,
-                                       labels = c("A", "B"),
-                                       label_size = 10)
+                                   scrbseq.locations.plot,
+                                   rel_widths = c(0.7, 0.3),
+                                   nrow = 1,
+                                   ncol = 2,
+                                   labels = c("A", "B"),
+                                   label_size = 10)
 
 #### Detected genes ######
 
 detectgenes.sumdat <- detectgenes.dat %>% 
   dplyr::filter(Annotation %in% c("gencode", "refseq") &
-                  Mapper %in% c("star", "bwa", "kallisto") &
-                  Protocol %in% c("SCRBseq", "Smartseq2", "Dropseq", "HGMM1kv3", "PBMC1kv3", "CELseq2")) %>% 
+                Mapper %in% c("star", "bwa", "kallisto") &
+                Protocol %in% c("SCRBseq", "Smartseq2", "Dropseq", "HGMM1kv3", "PBMC1kv3", "CELseq2")) %>% 
   dplyr::filter(Dropout < 0.9) %>% 
   dplyr::group_by(Protocol, Mapper, Annotation) %>% 
   dplyr::tally() %>% 
@@ -118,15 +118,15 @@ detectgenes.sumdat <- detectgenes.dat %>%
 
 detectgenes.sumdat$Protocol <- factor(detectgenes.sumdat$Protocol, 
                                       levels = c("10X Genomics", "CELseq2", "Dropseq", "SCRBseq", "Smartseq2"
-                                      ))
+))
 
 relabels["10X Genomics"] <- "10X Genomics"
 
 genedetect.plot <- ggplot2::ggplot(data = detectgenes.sumdat,
-                                   ggplot2::aes(x = Protocol, 
-                                                y = n, 
-                                                fill = Mapper, 
-                                                alpha = 0.5)) + 
+                                      ggplot2::aes(x = Protocol, 
+                                                   y = n, 
+                                                   fill = Mapper, 
+                                                   alpha = 0.5)) + 
   ggplot2::geom_col(position="dodge2", color = "black") + 
   ggplot2::theme_light() +
   ggplot2::scale_fill_manual(values = mapper.cols) +
@@ -153,8 +153,8 @@ annotation <- "gencode"
 mapper <- c("bwa", "star", "kallisto")
 
 param_names <- c(`Mean` = paste0("Log[2]", "~~", "Mean"), 
-                 `Dispersion` = paste0("Log[2]", "~~", "Dispersion"), 
-                 `Dropout` = paste0("Dropout"))
+                   `Dispersion` = paste0("Log[2]", "~~", "Dispersion"), 
+                   `Dropout` = paste0("Dropout"))
 Label_names <- data.frame(param_names) %>% tibble::rownames_to_column(var = 'variable')
 
 margs.dat.red <- margs.dat %>%
@@ -232,15 +232,7 @@ fit.plot <- ggplot2::ggplot(data=fits.dat.red,
 perf.dat.red <- perf.dat %>% 
   dplyr::filter(Protocol %in% protocols &
                   Mapper %in% c("bwa", "kallisto", "star") &
-                  Annotation == annotation &
-                  perc.DE == "0.05" &
-                  LFC == "Symmetric" &
-                  DEtool == "limma-trend" &
-                  DEFilter == 'raw' &
-                  Normalisation == 'scran' &
-                  Preprocessing == 'none' &
-                  Spike == "w/o Spike-Ins" &
-                  SampleSize == "384 vs 384")
+                  Annotation == annotation)
 
 # stats
 perf.sts <- perf.dat.red %>%
@@ -315,7 +307,7 @@ ggplot2::ggsave(filename=paste0("Quant_Results_", annotation, ".png"),
 
 # SUPPLEMENTARY INPUT -----------------------------------------------------
 
-mapres.si.dat <- readRDS(file = "MapStats_SI_2019-05-27.rds") %>% 
+mapres.si.dat <- readRDS(file = "MapStats_SI_2019-09-21.rds") %>% 
   dplyr::filter( Feature %in% c("Aligned", "Aligned+Assigned", "UMI") &
                    Protocol %in% c("CELseq2", "Dropseq", "SCRBseq", "Smartseq2", "PBMC1kv3", "HGMM1kv3") &
                    Mapper %in% c("star", 'bwa', 'kallisto'))
@@ -325,7 +317,7 @@ mapres.si.dat$Protocol <- factor(mapres.si.dat$Protocol ,
 mapres.si.dat$Mapper <- factor(mapres.si.dat$Mapper, levels = c("star", 'bwa', 'kallisto'))
 mapres.si.dat$Annotation <- factor(mapres.si.dat$Annotation, levels = c("gencode", 'vega', 'refseq'))
 
-detectgenes.si.dat <- readRDS(file = "MargsDat.rds") %>%
+detectgenes.si.dat <- readRDS(file = "MargsDat_2019-09-21.rds") %>%
   dplyr::select(-Mean, -Dispersion) %>% 
   dplyr::filter(Protocol %in% c("SCRBseq", "Smartseq2", "Dropseq", "HGMM1kv3", "PBMC1kv3", "CELseq2") & Mapper %in% c("star", 'bwa', 'kallisto')) %>% 
   dplyr::filter(Dropout < 0.9)
@@ -334,23 +326,22 @@ detectgenes.si.dat$Protocol <- factor(detectgenes.si.dat$Protocol ,
 detectgenes.si.dat$Mapper <- factor(detectgenes.si.dat$Mapper, levels = c("star", 'bwa', 'kallisto'))
 detectgenes.si.dat$Annotation <- factor(detectgenes.si.dat$Annotation, levels = c("gencode", 'vega', 'refseq'))
 
-margs.si.dat <- readRDS(file = "MargsDat.rds")
+margs.si.dat <- readRDS(file = "MargsDat_2019-09-21.rds")
 margs.si.dat <-   data.table::melt(setDT(margs.si.dat), 
                                    id.vars = c("Name", "Protocol", "Mapper", "Annotation", "GeneID"),
                                    measure.vars = c("Mean", "Dispersion", "Dropout"),
                                    variable.factor = FALSE) %>% 
   data.frame()
 
-fits.si.dat <- readRDS(file = "FitsDat.rds")
+fits.si.dat <- readRDS(file = "FitsDat_2019-09-21.rds")
 
-perf.si.dat <- readRDS(file = "AlignerPerformance.rds")
+perf.si.dat <- readRDS(file = "AlignerPerformance_2019-09-21.rds")
 
 # SUPPLEMENT FIGURES ------------------------------------------------------
-
 # (1) Mapping stats for all mappers, protocols and annotations
 mapres.si.plot <- ggplot(data = mapres.si.dat, 
-                         aes(x = Protocol, 
-                             y = Proportion, fill = Protocol, group = Protocol, alpha = Feature)) +
+                      aes(x = Protocol, 
+                          y = Proportion, fill = Protocol, group = Protocol, alpha = Feature)) +
   geom_bar(stat="identity", width=.8, position = "dodge", color="black") + 
   scale_y_continuous(labels = scales::percent, breaks=c(0,0.25,0.5,0.75,1), limits=c(0,1)) +
   scale_x_discrete(labels = protocol_names) +
@@ -369,6 +360,56 @@ mapres.si.plot <- ggplot(data = mapres.si.dat,
         strip.text = ggplot2::element_text(size=10, face="bold", color='black'),
         strip.background = ggplot2::element_rect(fill="white")) +
   coord_flip()
+
+ggplot2::ggsave(filename=paste0("Quant_Results_Mapping_SI_rev", ".pdf"), 
+                path =paste0("/data/share/htp/powsimR/plots/param+protocol/"), 
+                plot = mapres.si.plot,
+                width=210,
+                height=148,
+                units="mm")
+
+ggplot2::ggsave(filename=paste0("Quant_Results_Mapping_SI_rev", ".png"), 
+                path =paste0("/data/share/htp/powsimR/plots/param+protocol/"),
+                plot = mapres.si.plot,
+                width=210,
+                height=148,
+                units="mm")
+
+# (2) Number of detected genes per annotation ; stratify over protocol and aligner
+detectgenes.sum.dat <- detectgenes.si.dat %>% 
+  dplyr::group_by(Protocol, Mapper, Annotation) %>% 
+  dplyr::tally()
+maxgenes <- max(detectgenes.sum.dat$n)
+
+protocol_names <- c(`CELseq2` = "CEL-seq2", 
+                     `SCRBseq` = "SCRB-seq", 
+                     `Smartseq2` = "Smart-seq2", 
+                     `HGMM1kv3` = "TenX-HGMM", 
+                     `Dropseq` = "Drop-seq")
+
+genedetect.si.plot <- ggplot2::ggplot(data = detectgenes.sum.dat,
+                                   ggplot2::aes(x = Protocol, y = n, 
+                                                fill = Annotation, alpha = 0.75)) + 
+  ggplot2::geom_col(position="dodge2", color = "black") + 
+  ggplot2::theme_light() +
+  ggplot2::scale_x_discrete(labels = protocol_names) +
+  ggplot2::scale_y_continuous(breaks=c(0,5000, 10000, 15000, 20000), limits=c(0,maxgenes)) +
+  ggplot2::scale_fill_manual(values = annotation.cols, labels = annotation_names) +
+  ggplot2::guides(alpha = FALSE) + 
+  ggplot2::labs(x=NULL, y="Detected Genes") +
+  ggplot2::theme(legend.text = ggplot2::element_text(size=8, color='black'),
+                 legend.position = "top",
+                 legend.title = ggplot2::element_blank(),
+                 legend.key.size = grid::unit(0.5, "lines"),
+                 axis.text=ggplot2::element_text(size=8, color='black'),
+                 axis.title=ggplot2::element_text(size=8, face="bold", color='black'),
+                 strip.text = ggplot2::element_text(size=8, face="bold", color='black'),
+                 strip.background = ggplot2::element_rect(fill="white"),
+                 panel.spacing.y = grid::unit(1.5, "lines")) +
+  ggplot2::facet_wrap(~Mapper, 
+                      ncol = 1,
+                      scales = "free", labeller = as_labeller(relabels)) +
+  ggplot2::coord_flip()
 
 ggplot2::ggsave(filename=paste0("Quant_Results_Mapping_SI", ".pdf"), 
                 plot = mapres.si.plot,
@@ -441,10 +482,10 @@ param_names <- c(`Mean` = paste0("Log[2]", "~~", "Mean"),
 paramlabel_names <- data.frame(param_names) %>% 
   tibble::rownames_to_column(var = 'variable')
 protocols_names <- c(`CELseq2` = "CEL-seq2", 
-                     `SCRBseq` = "SCRB-seq", 
-                     `Smartseq2` = "Smart-seq2", 
-                     `HGMM1kv3` = "TenX-HGMM", 
-                     `Dropseq` = "Drop-seq")
+                    `SCRBseq` = "SCRB-seq", 
+                    `Smartseq2` = "Smart-seq2", 
+                    `HGMM1kv3` = "TenX-HGMM", 
+                    `Dropseq` = "Drop-seq")
 mapper_names <- c(`star` = "STAR", `bwa` = "BWA", `kallisto` = "kallisto")
 
 protocollabel_names <- data.frame(protocols_names) %>% 
@@ -463,18 +504,18 @@ margs.dat.red <- margs.si.dat %>%
                                               "Log[2]~~Dispersion", 
                                               "Dropout")),
                 Protocols = factor(Protocols, 
-                                   levels = c("Smart-seq2", 
-                                              "SCRB-seq", 
-                                              "Drop-seq", 
-                                              "CEL-seq2", 
-                                              "TenX-HGMM")),
+                                  levels = c("Smart-seq2", 
+                                             "SCRB-seq", 
+                                             "Drop-seq", 
+                                             "CEL-seq2", 
+                                             "TenX-HGMM")),
                 Mapper = factor(Mapper,
                                 levels = c("kallisto", "bwa", "star")),
                 Annotation = factor(Annotation,
-                                    levels = c("gencode", 'vega', 'refseq')))
+                                levels = c("gencode", 'vega', 'refseq')))
 
 marg.si.plot <- ggplot2::ggplot(data = margs.dat.red, 
-                                ggplot2::aes(x = Mapper, y = value, fill = Annotation)) + 
+                             ggplot2::aes(x = Mapper, y = value, fill = Annotation)) + 
   ggplot2::geom_violin(position=position_dodge(width=0.9),
                        width=0.8, 
                        alpha = 0.75) +
@@ -525,8 +566,8 @@ mappers <- c("star", "bwa", "kallisto")
 
 fits.dat.red <- fits.si.dat %>%
   dplyr::filter(Mapper %in% mappers &
-                  Annotation %in% annotations &
-                  Protocol %in% protocols) %>% 
+                Annotation %in% annotations &
+                Protocol %in% protocols) %>% 
   dplyr::mutate(Protocol = recode(Protocol, 
                                   `Smartseq2` = "Smart-seq2", 
                                   `SCRBseq` = "SCRB-seq",
@@ -549,10 +590,10 @@ fits.dat.red <- fits.si.dat %>%
                                                "RefSeq")))
 
 fit.si.plot <- ggplot2::ggplot(data=fits.dat.red, 
-                               ggplot2::aes(x=Mean, 
-                                            y=Dispersion, 
-                                            fill = Mapper, 
-                                            color = Mapper)) +
+                            ggplot2::aes(x=Mean, 
+                                         y=Dispersion, 
+                                         fill = Mapper, 
+                                         color = Mapper)) +
   ggplot2::theme_minimal() +
   ggplot2::scale_fill_manual(values = mapper.cols, labels = mapper_names) +
   ggplot2::scale_color_manual(values = mapper.cols, labels = mapper_names) +
@@ -589,18 +630,7 @@ ggplot2::ggsave(filename=paste0("Quant_Results_Fit_SI", ".png"),
 
 # (5) TPR per protocol stratified over aligner and annotation
 
-perf.si.sts <- perf.si.dat %>%
-  dplyr::filter(Protocol %in% c("10XGenomics", "CELseq2", "Dropseq", "SCRBseq", "Smartseq2") &
-                  Mapper %in% c("bwa", "kallisto", "star") &
-                  Annotation == c("gencode", "vega", "refseq") &
-                  perc.DE == "0.05" &
-                  LFC == "Symmetric" &
-                  DEtool == "limma-trend" &
-                  DEFilter == 'raw' &
-                  Normalisation == 'scran' &
-                  Preprocessing == 'none' &
-                  Spike == "w/o Spike-Ins" &
-                  SampleSize == "384 vs 384")
+perf.si.sts <- perf.si.dat 
 
 perf.si.plot <- ggplot2::ggplot(data = perf.si.sts,
                                 aes(x = Protocol, 
@@ -614,7 +644,7 @@ perf.si.plot <- ggplot2::ggplot(data = perf.si.sts,
   ggplot2::guides(alpha = FALSE) +
   ggplot2::scale_fill_manual(values = annotation.cols, labels = annotation_names) +
   scale_y_continuous(labels = scales::percent, 
-                     breaks=c(0.5, 0.6, 0.7, 0.8, 0.9,1), 
+                     breaks=c(0.5,0.6,0.7,0.8,0.9,1), 
                      limits=c(0.5,1)) +
   scale_x_discrete(labels = protocol_names) +
   ggplot2::labs(x = NULL) + 
